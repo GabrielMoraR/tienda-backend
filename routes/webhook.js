@@ -1,4 +1,3 @@
-// routes/webhook.js
 import express from "express";
 import Stripe from "stripe";
 import bodyParser from "body-parser";
@@ -8,9 +7,9 @@ import ProductVariant from "../models/ProductVariant.js";
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Stripe necesita el raw body para validar la firma
+// ⚠️ OJO: no pongas /webhook aquí, ya que en server.js usas /api/webhook
 router.post(
-  "/webhook",
+  "/",
   bodyParser.raw({ type: "application/json" }),
   async (req, res) => {
     const sig = req.headers["stripe-signature"];
@@ -44,10 +43,9 @@ router.post(
         // Extraer carrito desde metadata
         const cart = JSON.parse(session.metadata.cart);
 
-        // Restar stock de cada variante
+        // Restar stock
         for (const item of cart) {
           const variant = await ProductVariant.findByPk(item.variantId);
-
           if (variant) {
             const newStock = variant.stock - item.quantity;
             await variant.update({ stock: newStock >= 0 ? newStock : 0 });
@@ -67,6 +65,11 @@ router.post(
     }
 
     res.json({ received: true });
+  }
+);
+
+export default router;
+
   }
 );
 
