@@ -6,35 +6,48 @@ import sequelize from "./config/database.js";
 import authRoutes from "./routes/auth.js";
 import productRoutes from "./routes/products.js";
 import orderRoutes from "./routes/orders.js";
-import webhookRoutes from "./routes/webhook.js"; // 👈 Importa tu webhook
-import checkoutRoutes from "./routes/checkout.js"; // 👈 cambiado a import
+import webhookRoutes from "./routes/webhook.js";
+import checkoutRoutes from "./routes/checkout.js";
 
 const app = express();
 
-// 🚨 Esta ruta debe ir ANTES de express.json()
+// 🌐 CORS Config (ajusta con tu dominio)
+const allowedOrigins = [
+  "http://localhost:5173",           // desarrollo local
+  "https://playertlax.com",          // dominio de tu frontend en producción
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
+
+// 🚨 Stripe webhook — DEBE ir antes de express.json()
 app.use("/api/webhook", webhookRoutes);
 
-app.use(cors());
+// Middleware
 app.use(express.json());
 
+// Archivos estáticos (si subes imágenes, etc.)
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
+// Rutas API
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/checkout", checkoutRoutes);
 
-
+// Render se encarga del puerto
 const PORT = process.env.PORT || 4000;
 
+// Conectar DB y levantar servidor
 (async () => {
   try {
     await sequelize.authenticate();
-    // Si tus tablas ya existen, NO sincronices con force.
-    // await sequelize.sync({ alter: true }); // opcional si necesitas ajustar columnas
-    console.log("DB conectada");
-    app.listen(PORT, () => console.log(`API escuchando en ${PORT}`));
+    console.log("✅ DB conectada correctamente");
+    app.listen(PORT, () => console.log(`🚀 Servidor escuchando en puerto ${PORT}`));
   } catch (e) {
-    console.error("Error al conectar DB:", e.message);
+    console.error("❌ Error al conectar DB:", e.message);
     process.exit(1);
   }
 })();
