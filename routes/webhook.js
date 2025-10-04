@@ -7,7 +7,7 @@ import ProductVariant from "../models/ProductVariant.js";
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// ⚠️ OJO: no pongas /webhook aquí, ya que en server.js usas /api/webhook
+// ⚠️ No pongas "/webhook" aquí, porque ya lo defines en server.js con "/api/webhook"
 router.post(
   "/",
   bodyParser.raw({ type: "application/json" }),
@@ -30,7 +30,7 @@ router.post(
       const session = event.data.object;
 
       try {
-        // Buscar orden por stripeSessionId
+        // Buscar la orden por stripeSessionId
         const order = await Order.findOne({
           where: { stripeSessionId: session.id },
         });
@@ -64,12 +64,8 @@ router.post(
       }
     }
 
+    // Respuesta final al webhook
     res.json({ received: true });
-  }
-);
-
-export default router;
-
   }
 );
 
