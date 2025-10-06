@@ -13,14 +13,24 @@ const app = express();
 
 // 🌐 CORS Config (ajusta con tu dominio)
 const allowedOrigins = [
-  "http://localhost:5173",           // desarrollo local
-  "https://playertlax.com",          // dominio de tu frontend en producción
+  "http://localhost:5173",      // desarrollo local
+  "https://playertlax.com",     // dominio sin www
+  "https://www.playertlax.com", // dominio con www (por si acaso)
 ];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    // permitir también peticiones sin "Origin" (como desde curl o Render internal)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log("❌ CORS bloqueado para origen:", origin);
+      callback(new Error("No permitido por CORS"));
+    }
+  },
   credentials: true,
 }));
+
 
 // 🚨 Stripe webhook — DEBE ir antes de express.json()
 app.use("/api/webhook", webhookRoutes);
