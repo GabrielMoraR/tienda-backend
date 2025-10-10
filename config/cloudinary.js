@@ -1,11 +1,16 @@
-// config/cloudinary.js
-require('dotenv').config();
-const cloudinary = require('cloudinary').v2;
+import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinary.js";
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+// Configuración de almacenamiento en Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "productos", // carpeta donde se subirán las imágenes
+    allowed_formats: ["jpg", "png", "jpeg", "webp"],
+  },
 });
 
-module.exports = cloudinary;
+// Exportación correcta (ESM)
+const upload = multer({ storage });
+export default upload;
