@@ -32,6 +32,8 @@ export const getProductById = async (req, res) => {
 // Crear producto con subida a Cloudinary
 export const createProduct = async (req, res) => {
   try {
+     console.log("📦 req.body:", req.body);
+    console.log("🖼️ req.file:", req.file); // 👈 agrega esto
     const { name, price, description, category, subcategory, variants } = req.body;
     const imageUrl = req.file ? req.file.path : null; // Cloudinary devuelve la URL pública
 
