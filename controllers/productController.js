@@ -69,13 +69,17 @@ export const createProduct = async (req, res) => {
 // Actualizar producto con variantes e imagen en Cloudinary
 export const updateProduct = async (req, res) => {
   try {
+    console.log("🔹 req.params.id:", req.params.id);
+    console.log("🔹 req.body:", req.body);
+    console.log("🔹 req.file:", req.file);
+
     const { name, price, description, category, subcategory, variants } = req.body;
     const id = req.params.id;
 
     const updateData = { name, price, description, category, subcategory };
 
     if (req.file) {
-      updateData.image = req.file.path; // nueva URL Cloudinary si se sube una nueva imagen
+      updateData.image = req.file.path; // URL de Cloudinary
     }
 
     await Product.update(updateData, { where: { id } });
@@ -96,10 +100,11 @@ export const updateProduct = async (req, res) => {
     const updated = await Product.findByPk(id, { include: "variants" });
     res.json(updated);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error al actualizar producto" });
+    console.error("❌ Error en updateProduct:", err);
+    res.status(500).json({ error: "Error al actualizar producto", details: err.message });
   }
 };
+
 
 // Eliminar producto
 export const deleteProduct = async (req, res) => {
