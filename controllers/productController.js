@@ -29,14 +29,19 @@ export const getProductById = async (req, res) => {
   }
 };
 
-// Crear producto con variantes
+// Crear producto con subida a Cloudinary
 export const createProduct = async (req, res) => {
   try {
     const { name, price, description, category, subcategory, variants } = req.body;
-    const imageFile = req.file ? req.file.filename : null;
+    const imageUrl = req.file ? req.file.path : null; // Cloudinary devuelve la URL pública
 
     const product = await Product.create({
-      name, price, description, category, subcategory, image: imageFile,
+      name,
+      price,
+      description,
+      category,
+      subcategory,
+      image: imageUrl, // guardamos la URL
     });
 
     if (variants) {
@@ -59,18 +64,20 @@ export const createProduct = async (req, res) => {
   }
 };
 
-// Actualizar producto con variantes
+// Actualizar producto con variantes e imagen en Cloudinary
 export const updateProduct = async (req, res) => {
   try {
     const { name, price, description, category, subcategory, variants } = req.body;
     const id = req.params.id;
 
     const updateData = { name, price, description, category, subcategory };
-    if (req.file) updateData.image = req.file.filename;
+
+    if (req.file) {
+      updateData.image = req.file.path; // nueva URL Cloudinary si se sube una nueva imagen
+    }
 
     await Product.update(updateData, { where: { id } });
 
-    // limpiar variantes previas y volver a crearlas
     if (variants) {
       await ProductVariant.destroy({ where: { product_id: id } });
       const parsed = JSON.parse(variants);
