@@ -45,7 +45,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/checkout", checkoutRoutes);
+app.use("/checkout", checkoutRoutes);
 
 // Render se encarga del puerto
 const PORT = process.env.PORT || 4000;
