@@ -1,18 +1,28 @@
-// middleware/uploadCloudinary.js
-const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('../config/cloudinary');
+import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { v2 as cloudinary } from "cloudinary";
+import dotenv from "dotenv";
 
-// configuración de almacenamiento en Cloudinary
+dotenv.config();
+
+// Configura Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Configura el almacenamiento con Cloudinary
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: 'tienda_products', // carpeta donde se subirán las imágenes
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 1200, crop: 'limit' }],
+    folder: "productos",
+    allowed_formats: ["jpg", "png", "jpeg", "webp"],
   },
 });
 
+// Crea la instancia de multer con el storage configurado
 const upload = multer({ storage });
 
-module.exports = upload;
+// ✅ Exportación correcta para ES Modules
+export default upload;
