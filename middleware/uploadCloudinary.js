@@ -1,21 +1,12 @@
-// /middleware/uploadCloudinary.js
+// middleware/uploadCloudinary.js
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
-import { v2 as cloudinary } from "cloudinary";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+import { cloudinary } from "../config/cloudinary.js";
 
 const storage = new CloudinaryStorage({
-  cloudinary,
+  cloudinary: cloudinary,
   params: {
-    folder: "productos",
+    folder: "tienda", // Carpeta en Cloudinary
     allowed_formats: ["jpg", "png", "jpeg", "webp"],
   },
 });
@@ -23,3 +14,4 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage });
 
 export default upload;
+

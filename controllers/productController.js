@@ -1,7 +1,7 @@
 import Product from "../models/Product.js";
 import ProductVariant from "../models/ProductVariant.js";
 
-// Obtener todos los productos con variantes
+// Obtener todos los productos
 export const getProducts = async (req, res) => {
   try {
     const products = await Product.findAll({
@@ -10,12 +10,12 @@ export const getProducts = async (req, res) => {
     });
     res.json(products);
   } catch (err) {
-    console.error(err);
+    console.error("❌ Error getProducts:", err.message);
     res.status(500).json({ error: "Error al obtener productos" });
   }
 };
 
-// Obtener producto por ID
+// Obtener por ID
 export const getProductById = async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id, {
@@ -24,18 +24,16 @@ export const getProductById = async (req, res) => {
     if (!product) return res.status(404).json({ error: "Producto no encontrado" });
     res.json(product);
   } catch (err) {
-    console.error(err);
+    console.error("❌ Error getProductById:", err.message);
     res.status(500).json({ error: "Error al obtener producto" });
   }
 };
 
-// Crear producto con subida a Cloudinary
+// Crear producto
 export const createProduct = async (req, res) => {
   try {
-     console.log("📦 req.body:", req.body);
-    console.log("🖼️ req.file:", req.file); // 👈 agrega esto
     const { name, price, description, category, subcategory, variants } = req.body;
-    const imageUrl = req.file ? req.file.path : null; // Cloudinary devuelve la URL pública
+    const imageUrl = req.file ? req.file.path : null;
 
     const product = await Product.create({
       name,
@@ -43,7 +41,7 @@ export const createProduct = async (req, res) => {
       description,
       category,
       subcategory,
-      image: imageUrl, // guardamos la URL
+      image: imageUrl,
     });
 
     if (variants) {
@@ -53,7 +51,7 @@ export const createProduct = async (req, res) => {
           product_id: product.id,
           color: v.color,
           size: v.size,
-          stock: v.stock,
+          stock: Number(v.stock),
         });
       }
     }
@@ -61,26 +59,20 @@ export const createProduct = async (req, res) => {
     const fullProduct = await Product.findByPk(product.id, { include: "variants" });
     res.status(201).json(fullProduct);
   } catch (err) {
-    console.error(err);
+    console.error("❌ Error createProduct:", err.message, err.stack);
     res.status(500).json({ error: "Error al crear producto" });
   }
 };
 
-// Actualizar producto con variantes e imagen en Cloudinary
+// Actualizar producto
 export const updateProduct = async (req, res) => {
   try {
-    console.log("🔹 req.params.id:", req.params.id);
-    console.log("🔹 req.body:", req.body);
-    console.log("🔹 req.file:", req.file);
-
     const { name, price, description, category, subcategory, variants } = req.body;
     const id = req.params.id;
 
     const updateData = { name, price, description, category, subcategory };
 
-    if (req.file) {
-      updateData.image = req.file.path; // URL de Cloudinary
-    }
+    if (req.file) updateData.image = req.file.path;
 
     await Product.update(updateData, { where: { id } });
 
@@ -92,7 +84,7 @@ export const updateProduct = async (req, res) => {
           product_id: id,
           color: v.color,
           size: v.size,
-          stock: v.stock,
+          stock: Number(v.stock),
         });
       }
     }
@@ -100,11 +92,10 @@ export const updateProduct = async (req, res) => {
     const updated = await Product.findByPk(id, { include: "variants" });
     res.json(updated);
   } catch (err) {
-    console.error("❌ Error en updateProduct:", err);
-    res.status(500).json({ error: "Error al actualizar producto", details: err.message });
+    console.error("❌ Error updateProduct:", err.message, err.stack);
+    res.status(500).json({ error: "Error al actualizar producto" });
   }
 };
-
 
 // Eliminar producto
 export const deleteProduct = async (req, res) => {
@@ -112,7 +103,7 @@ export const deleteProduct = async (req, res) => {
     await Product.destroy({ where: { id: req.params.id } });
     res.json({ message: "Producto eliminado" });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Error deleteProduct:", err.message);
     res.status(500).json({ error: "Error al eliminar producto" });
   }
 };
